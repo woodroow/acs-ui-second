@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
   const [{ COUNT: departments }] = await executeQuery('SELECT COUNT(ID) FROM FB_POD');
   const [{ COUNT: systemEvents }] = await executeQuery('SELECT COUNT(USR) FROM FB_SYL');
   const [{ COUNT: controllers }] = await executeQuery('SELECT COUNT(ID) FROM FB_DVS');
-  const [{ COUNT: events }] = await executeQuery('SELECT COUNT(ID) FROM FB_EVN');
+  const [{ COUNT: events }] = await executeQuery('SELECT COUNT(USR) FROM FB_EVN INNER JOIN FB_USR ON FB_USR.ID = FB_EVN.USR INNER JOIN FB_DVS ON FB_EVN.DVS = FB_DVS.ID');
   const [{ COUNT: places }] = await executeQuery('SELECT COUNT(ID) FROM FB_ODO');
   const result = [
     { name: 'Пользователей', count: users },
