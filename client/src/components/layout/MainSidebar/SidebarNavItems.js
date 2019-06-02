@@ -1,5 +1,6 @@
 import React from 'react';
 import { Nav } from 'shards-react';
+import { getSession } from '../../../auth';
 
 import SidebarNavItem from './SidebarNavItem';
 import { Store } from '../../../flux';
@@ -31,7 +32,12 @@ class SidebarNavItems extends React.Component {
   }
 
   render() {
-    const { navItems: items } = this.state;
+    const { navItems } = this.state;
+    const session = getSession();
+    let items = navItems;
+    if (!session || !session.admin) {
+      items = navItems.filter(item => !item.admin);
+    }
     return (
       <div className='nav-wrapper'>
         <Nav className='nav--no-borders flex-column'>

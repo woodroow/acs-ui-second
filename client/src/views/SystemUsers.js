@@ -1,14 +1,14 @@
 import React from 'react';
 import {
-  Container, Row, Col, Card, CardHeader, CardBody, Button
+  Container, Row, Col, Card, CardHeader, CardBody, Button, Badge
 } from 'shards-react';
 
 import PageTitle from '../components/common/PageTitle';
 import Grid from '../components/common/Grid';
-import UserEdit from '../components/users/UserEdit';
-import UserCreate from '../components/users/UserCreate';
+import SystemUserEdit from '../components/systemUsers/SystemUserEdit';
+import SystemUserCreate from '../components/systemUsers/SystemUserCreate';
 
-class Users extends React.Component<Props> {
+class SystemUsers extends React.Component<Props> {
   state = {
     rows: [],
     columns: [],
@@ -29,8 +29,8 @@ class Users extends React.Component<Props> {
     await this.loadData();
   };
 
-  openUser = async id => {
-    this.setState({ modalIsOpen: true, currentUser: id });
+  open = async item => {
+    this.setState({ modalIsOpen: true, currentUser: item });
   };
 
   createUser = () => {
@@ -55,7 +55,7 @@ class Users extends React.Component<Props> {
   async loadData() {
     const { limit, page } = this.state;
     const result = await fetch(
-      `/api/users?limit=${limit}&skip=${page * limit}`,
+      `/api/system_users?limit=${limit}&skip=${page * limit}`,
       {
         method: 'GET'
       },
@@ -63,19 +63,15 @@ class Users extends React.Component<Props> {
     const { data, count } = await result.json();
     if (!data || !data.length) throw new Error('Failed to load the news feed.');
     const columns = [
-      { name: 'TABNUM', title: '#' },
-      { name: 'LNAME', title: 'Фамилия' },
-      { name: 'FNAME', title: 'Имя' },
-      { name: 'SNAME', title: 'Отчество' },
-      { name: 'EMAIL', title: 'Email' },
-      { name: 'NAME', title: 'Подразделение' }
+      { name: 'email', title: 'Почта' }
     ];
     const rows = data.map(item => {
       const object = {
         id: item.ID,
+        role: item.admin ? <Badge>Администратор</Badge> : <Badge theme='secondary'>Модератор</Badge>,
         actions: (
-          <Button onClick={() => this.openUser(item.ID)} size='sm'>
-            изменить
+          <Button onClick={() => this.open(item)} size='sm'>
+            подробнее
           </Button>
         )
       };
@@ -85,6 +81,7 @@ class Users extends React.Component<Props> {
       });
       return object;
     });
+    columns.push({ name: 'role', title: 'Права' });
     columns.push({ name: 'actions', title: 'Действия', align: 'right' });
     this.setState({ rows, columns, count });
   }
@@ -105,7 +102,7 @@ class Users extends React.Component<Props> {
         <Container fluid className='main-content-container px-4'>
           {/* Page Header */}
           <Row noGutters className='page-header py-4'>
-            <PageTitle sm='4' subtitle='Пользователи' className='text-sm-left' />
+            <PageTitle sm='4' subtitle='Системне пользователи' className='text-sm-left' />
           </Row>
   
           {/* Default Light Table */}
@@ -135,10 +132,10 @@ class Users extends React.Component<Props> {
             </Col>
           </Row>
         </Container>
-        {modalIsOpen && (<UserEdit onClose={this.closeUser} onCloseRemove={this.closeRemoveUser} user={currentUser} />)}
-        {modalCreateIsOpen && (<UserCreate onClose={this.closeCreateUser} />)}
+        {modalIsOpen && (<SystemUserEdit onClose={this.closeUser} onCloseRemove={this.closeRemoveUser} user={currentUser} />)}
+        {modalCreateIsOpen && (<SystemUserCreate onClose={this.closeCreateUser} />)}
       </>
     );
   }
 }
-export default Users;
+export default SystemUsers;

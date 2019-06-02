@@ -2,22 +2,20 @@ import React from 'react';
 import {
   Container, Row, Col, Card, CardHeader, CardBody, Button
 } from 'shards-react';
+import moment from 'moment';
 
 import PageTitle from '../components/common/PageTitle';
 import Grid from '../components/common/Grid';
-import UserEdit from '../components/users/UserEdit';
-import UserCreate from '../components/users/UserCreate';
+import KeyCreate from '../components/keys/KeyCreate';
 
-class Users extends React.Component<Props> {
+class Keys extends React.Component<Props> {
   state = {
     rows: [],
     columns: [],
     limit: 5,
     page: 0,
     count: 0,
-    modalIsOpen: false,
-    modalCreateIsOpen: false,
-    currentUser: null
+    modalCreateIsOpen: false
   };
 
   async componentDidMount() {
@@ -29,22 +27,8 @@ class Users extends React.Component<Props> {
     await this.loadData();
   };
 
-  openUser = async id => {
-    this.setState({ modalIsOpen: true, currentUser: id });
-  };
-
   createUser = () => {
     this.setState({ modalCreateIsOpen: true });
-  };
-
-  closeUser = async () => {
-    this.setState({ modalIsOpen: false });
-    await this.loadData();
-  };
-
-  closeRemoveUser = async () => {
-    this.setState({ modalIsOpen: false, page: 0 });
-    await this.loadData();
   };
 
   closeCreateUser = async () => {
@@ -55,7 +39,7 @@ class Users extends React.Component<Props> {
   async loadData() {
     const { limit, page } = this.state;
     const result = await fetch(
-      `/api/users?limit=${limit}&skip=${page * limit}`,
+      `/api/keys/list?limit=${limit}&skip=${page * limit}`,
       {
         method: 'GET'
       },
@@ -63,21 +47,12 @@ class Users extends React.Component<Props> {
     const { data, count } = await result.json();
     if (!data || !data.length) throw new Error('Failed to load the news feed.');
     const columns = [
-      { name: 'TABNUM', title: '#' },
-      { name: 'LNAME', title: 'Фамилия' },
-      { name: 'FNAME', title: 'Имя' },
-      { name: 'SNAME', title: 'Отчество' },
-      { name: 'EMAIL', title: 'Email' },
-      { name: 'NAME', title: 'Подразделение' }
+      { name: 'ID', title: 'Номер пропуска' }
     ];
     const rows = data.map(item => {
       const object = {
         id: item.ID,
-        actions: (
-          <Button onClick={() => this.openUser(item.ID)} size='sm'>
-            изменить
-          </Button>
-        )
+        date: moment(item.GDATE).format('DD/MM HH:mm')
       };
       columns.map(col => {
         object[col.name] = item[col.name];
@@ -85,7 +60,7 @@ class Users extends React.Component<Props> {
       });
       return object;
     });
-    columns.push({ name: 'actions', title: 'Действия', align: 'right' });
+    columns.push({ name: 'date', title: 'Создан' });
     this.setState({ rows, columns, count });
   }
 
@@ -96,16 +71,14 @@ class Users extends React.Component<Props> {
       limit,
       page,
       count,
-      modalIsOpen,
-      modalCreateIsOpen,
-      currentUser
+      modalCreateIsOpen
     } = this.state;
     return (
       <>
         <Container fluid className='main-content-container px-4'>
           {/* Page Header */}
           <Row noGutters className='page-header py-4'>
-            <PageTitle sm='4' subtitle='Пользователи' className='text-sm-left' />
+            <PageTitle sm='4' subtitle='Пропуски' className='text-sm-left' />
           </Row>
   
           {/* Default Light Table */}
@@ -135,10 +108,9 @@ class Users extends React.Component<Props> {
             </Col>
           </Row>
         </Container>
-        {modalIsOpen && (<UserEdit onClose={this.closeUser} onCloseRemove={this.closeRemoveUser} user={currentUser} />)}
-        {modalCreateIsOpen && (<UserCreate onClose={this.closeCreateUser} />)}
+        {modalCreateIsOpen && (<KeyCreate onClose={this.onClose} />)}
       </>
     );
   }
 }
-export default Users;
+export default Keys;

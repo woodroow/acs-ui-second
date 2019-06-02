@@ -1,9 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Row, Col, Card, CardHeader, CardBody, Button } from "shards-react";
-
-import RangeDatePicker from "../common/RangeDatePicker";
-import Chart from "../../utils/chart";
+import React from 'react';
+import PropTypes from 'prop-types';
+import {
+  Row, Col, Card, CardHeader, CardBody
+} from 'shards-react';
+import Chart from '../../utils/chart';
 
 class UsersOverview extends React.Component {
   constructor(props) {
@@ -17,7 +17,7 @@ class UsersOverview extends React.Component {
       ...{
         responsive: true,
         legend: {
-          position: "top"
+          position: 'top'
         },
         elements: {
           line: {
@@ -35,7 +35,7 @@ class UsersOverview extends React.Component {
               ticks: {
                 callback(tick, index) {
                   // Jump every 7 values on the X axis labels to avoid clutter.
-                  return index % 7 !== 0 ? "" : tick;
+                  return index % 7 !== 0 ? '' : tick;
                 }
               }
             }
@@ -56,12 +56,12 @@ class UsersOverview extends React.Component {
           ]
         },
         hover: {
-          mode: "nearest",
+          mode: 'nearest',
           intersect: false
         },
         tooltips: {
           custom: false,
-          mode: "nearest",
+          mode: 'nearest',
           intersect: false
         }
       },
@@ -69,7 +69,7 @@ class UsersOverview extends React.Component {
     };
 
     const BlogUsersOverview = new Chart(this.canvasRef.current, {
-      type: "LineWithLine",
+      type: 'LineWithLine',
       data: this.props.chartData,
       options: chartOptions
     });
@@ -86,30 +86,26 @@ class UsersOverview extends React.Component {
   }
 
   render() {
-    const { title } = this.props;
+    const { title, extra } = this.props;
     return (
-      <Card small className="h-100">
-        <CardHeader className="border-bottom">
-          <h6 className="m-0">{title}</h6>
-        </CardHeader>
-        <CardBody className="pt-0">
-          <Row className="border-bottom py-2 bg-light">
-            <Col sm="6" className="d-flex mb-2 mb-sm-0">
-              <RangeDatePicker />
-            </Col>
+      <Card small className='h-100'>
+        <CardHeader className='border-bottom'>
+          <Row>
             <Col>
-              <Button
-                size="sm"
-                className="d-flex btn-white ml-auto mr-auto ml-sm-auto mr-sm-0 mt-3 mt-sm-0"
-              >
-                View Full Report &rarr;
-              </Button>
+              <h6 className='m-0'>{title}</h6>
             </Col>
+            {extra && (
+            <Col className='text-right view-report'>
+              {extra}
+            </Col>
+            )}
           </Row>
+        </CardHeader>
+        <CardBody className='pt-0'>
           <canvas
-            height="120"
+            height='120'
             ref={this.canvasRef}
-            style={{ maxWidth: "100% !important" }}
+            style={{ maxWidth: '100% !important' }}
           />
         </CardBody>
       </Card>
@@ -129,17 +125,18 @@ UsersOverview.propTypes = {
   /**
    * The Chart.js options.
    */
-  chartOptions: PropTypes.object
+  chartOptions: PropTypes.object,
+  extra: PropTypes.node
 };
 
 UsersOverview.defaultProps = {
-  title: "Users Overview",
+  title: 'События за последнюю неделю',
   chartData: {
-    labels: Array.from(new Array(30), (_, i) => (i === 0 ? 1 : i)),
+    labels: Array.from(new Array(24), (_, i) => (i === 0 ? 1 : i)),
     datasets: [
       {
-        label: "Current Month",
-        fill: "start",
+        label: 'Current Month',
+        fill: 'start',
         data: [
           500,
           800,
@@ -172,17 +169,17 @@ UsersOverview.defaultProps = {
           3100,
           4250
         ],
-        backgroundColor: "rgba(0,123,255,0.1)",
-        borderColor: "rgba(0,123,255,1)",
-        pointBackgroundColor: "#ffffff",
-        pointHoverBackgroundColor: "rgb(0,123,255)",
+        backgroundColor: 'rgba(0,123,255,0.1)',
+        borderColor: 'rgba(0,123,255,1)',
+        pointBackgroundColor: '#ffffff',
+        pointHoverBackgroundColor: 'rgb(0,123,255)',
         borderWidth: 1.5,
         pointRadius: 0,
         pointHoverRadius: 3
       },
       {
-        label: "Past Month",
-        fill: "start",
+        label: 'Past Month',
+        fill: 'start',
         data: [
           380,
           430,
@@ -215,15 +212,15 @@ UsersOverview.defaultProps = {
           780,
           1200
         ],
-        backgroundColor: "rgba(255,65,105,0.1)",
-        borderColor: "rgba(255,65,105,1)",
-        pointBackgroundColor: "#ffffff",
-        pointHoverBackgroundColor: "rgba(255,65,105,1)",
+        backgroundColor: 'rgba(255,65,105,0.1)',
+        borderColor: 'rgba(255,65,105,1)',
+        pointBackgroundColor: '#ffffff',
+        pointHoverBackgroundColor: 'rgba(255,65,105,1)',
         borderDash: [3, 3],
         borderWidth: 1,
         pointRadius: 0,
         pointHoverRadius: 2,
-        pointBorderColor: "rgba(255,65,105,1)"
+        pointBorderColor: 'rgba(255,65,105,1)'
       }
     ]
   }

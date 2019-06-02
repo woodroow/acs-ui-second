@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Modal, ModalBody, ModalFooter, Button, Form, FormInput, FormGroup, FormSelect
+  Modal, ModalBody, ModalFooter, Button, Form, FormInput, FormGroup, FormSelect, Alert
 } from 'shards-react';
 
 import '../../assets/modal.css';
 
-class UserEdit extends React.Component<Props> {
+class UserCreate extends React.Component<Props> {
   state = {
     isFetching: true,
     user: {},
@@ -14,15 +14,15 @@ class UserEdit extends React.Component<Props> {
     departments: [],
     positions: [],
     keys: [],
-    removeModalIsOpen: false
+    removeModalIsOpen: false,
+    error: false
   };
 
   async componentDidMount() {
-    const { user } = this.props;
     await this.loadDepartments();
     await this.loadPositions();
     await this.loadKeys();
-    await this.loadUser(user);
+    // await this.loadUser(user);
     this.setState({ isFetching: false });
   }
 
@@ -33,30 +33,11 @@ class UserEdit extends React.Component<Props> {
     this.setState({ user, wasChanged: true });
   };
 
-  handleRemoveuserOpen = () => {
-    const { removeModalIsOpen } = this.state;
-    this.setState({ removeModalIsOpen: !removeModalIsOpen });
-  }
-
-
-  handleRemoveUser = async () => {
-    const { user } = this.state;
-    const { onCloseRemove } = this.props;
-    await fetch(`/api/users/${user.ID}`, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
-    onCloseRemove();
-  };
-
-  handleSaveUser = async () => {
+  handleCreateUser = async () => {
     const { user } = this.state;
     const { onClose } = this.props;
-    await fetch(`/api/users/${user.ID}`, {
-      method: 'PUT',
+    const result = await fetch('/api/users', {
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
@@ -65,7 +46,12 @@ class UserEdit extends React.Component<Props> {
         user
       })
     });
+
+    if (!result || result.status !== 200) {
+      return this.setState({ error: true });
+    }
     onClose();
+    return true;
   };
 
   async loadUser(id) {
@@ -83,7 +69,9 @@ class UserEdit extends React.Component<Props> {
     });
     const data = await result.json();
     if (!data) throw new Error('Failed to load data.');
-    this.setState({ departments: data });
+    const { user } = this.state;
+    user.PODR = data[0].ID;
+    this.setState({ departments: data, user });
   }
 
   async loadPositions() {
@@ -92,7 +80,9 @@ class UserEdit extends React.Component<Props> {
     });
     const data = await result.json();
     if (!data) throw new Error('Failed to load data.');
-    this.setState({ positions: data });
+    const { user } = this.state;
+    user.DOLZ = data[0].ID;
+    this.setState({ positions: data, user });
   }
 
   async loadKeys() {
@@ -100,6 +90,8 @@ class UserEdit extends React.Component<Props> {
       method: 'GET'
     });
     const data = await result.json();
+    const { user } = this.state;
+    user.KEY = data[0].ID;
     if (!data) throw new Error('Failed to load data.');
     this.setState({ keys: data });
   }
@@ -107,9 +99,9 @@ class UserEdit extends React.Component<Props> {
   render() {
     const { onClose } = this.props;
     const {
-      user, wasChanged, departments, positions, isFetching, removeModalIsOpen, keys
+      user, wasChanged, departments, positions, isFetching, removeModalIsOpen, error, keys
     } = this.state;
-    const { handleChangeUser, handleSaveUser, handleRemoveUser } = this;
+    const { handleChangeUser, handleCreateUser } = this;
     return (
       !isFetching
         && (<>
@@ -182,28 +174,21 @@ class UserEdit extends React.Component<Props> {
                 </FormGroup>
               </Form>
 
-              
+              <Alert open={error} theme='danger'>
+                    Ошибка! Заполните все поля и повторите попытку
+              </Alert>
             </ModalBody>
             <ModalFooter>
-              <Button outline theme='danger' onClick={this.handleRemoveuserOpen}>Удалить пользователя</Button>
               <Button onClick={onClose} theme='light'>Закрыть</Button>
-              <Button disabled={!wasChanged} onClick={handleSaveUser}>Сохранить</Button>
+              <Button disabled={!wasChanged} onClick={handleCreateUser}>Создать</Button>
             </ModalFooter>
           </Modal>
-          <Modal open={removeModalIsOpen} toggle={this.handleRemoveuserOpen}>
-            <ModalBody>Вы действительно хотите удалить пользователя?</ModalBody>
-            
-            <ModalFooter>
-              <Button onClick={this.handleRemoveuserOpen} theme='light'>Отмена</Button>
-              <Button onClick={handleRemoveUser} theme='danger'>Удалить</Button>
-            </ModalFooter>
-          </Modal></>)
+          </>)
       
     );
   }
 }
-UserEdit.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  onCloseRemove: PropTypes.func.isRequired
+UserCreate.propTypes = {
+  onClose: PropTypes.func.isRequired
 };
-export default UserEdit;
+export default UserCreate;

@@ -1,4 +1,3 @@
-import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -7,7 +6,7 @@ import expressGraphQL from 'express-graphql';
 import Firebird from 'node-firebird';
 import router from './router';
 import schema from './data/schema';
-import config from '../config';
+import config from './config';
 
 const options = {};
 

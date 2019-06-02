@@ -1,6 +1,7 @@
 {
-  "name": "acs-server",
+  "name": "acs-ui-server",
   "version": "1.0.0",
+  "private": true,
   "dependencies": {
     "cookie-parser": "^1.4.4",
     "express": "^4.16.4",
