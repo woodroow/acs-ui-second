@@ -108,7 +108,7 @@ class Keys extends React.Component<Props> {
             </Col>
           </Row>
         </Container>
-        {modalCreateIsOpen && (<KeyCreate onClose={this.onClose} />)}
+        {modalCreateIsOpen && (<KeyCreate onClose={this.closeCreateUser} />)}
       </>
     );
   }
